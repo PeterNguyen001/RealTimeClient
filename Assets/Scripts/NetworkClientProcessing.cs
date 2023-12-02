@@ -1,9 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 static public class NetworkClientProcessing
 {
+    const int commandSign = 0;
+
+    const int idSign = 1;
+    const int xPosSign = 2;
+    const int yPosSign = 3;
+
+    
 
     #region Send and Receive Data Functions
     static public void ReceivedMessageFromServer(string msg, TransportPipeline pipeline)
@@ -11,7 +19,7 @@ static public class NetworkClientProcessing
         Debug.Log("Network msg received =  " + msg + ", from pipeline = " + pipeline);
 
         string[] csv = msg.Split(',');
-        int signifier = int.Parse(csv[0]);
+        int signifier = int.Parse(csv[commandSign]);
 
         // if (signifier == ServerToClientSignifiers.asd)
         // {
@@ -23,7 +31,14 @@ static public class NetworkClientProcessing
         // }
 
         //gameLogic.DoSomething();
-
+        if(signifier == ServerToClientSignifiers.addNewBalloonCommand)
+        {
+            gameLogic.SpawnNewBalloon(int.Parse(csv[idSign]), float.Parse(csv[xPosSign]), float.Parse(csv[yPosSign]));
+        }
+        else if (signifier == ServerToClientSignifiers.removeBalloonCommand)
+        {
+            gameLogic.RemoveBallon(int.Parse(csv[idSign]));
+        }
     }
 
     static public void SendMessageToServer(string msg, TransportPipeline pipeline)
@@ -40,6 +55,7 @@ static public class NetworkClientProcessing
     }
     static public void DisconnectionEvent()
     {
+        DisconnectFromServer();
         Debug.Log("Network Disconnection Event!");
     }
     static public bool IsConnectedToServer()
@@ -52,6 +68,7 @@ static public class NetworkClientProcessing
     }
     static public void DisconnectFromServer()
     {
+        SendMessageToServer(ClientToServerSignifiers.playerQuit.ToString(), TransportPipeline.FireAndForget);
         networkClient.Disconnect();
     }
 
@@ -73,6 +90,7 @@ static public class NetworkClientProcessing
     {
         gameLogic = GameLogic;
     }
+    static public GameLogic GetGameLogic() { return gameLogic; }
 
     #endregion
 
@@ -81,12 +99,15 @@ static public class NetworkClientProcessing
 #region Protocol Signifiers
 static public class ClientToServerSignifiers
 {
-    public const int asd = 1;
+    public const int deleteBalloonCommand = 4;
+    public const int playerQuit = 0;
 }
 
 static public class ServerToClientSignifiers
 {
-    public const int asd = 1;
+    public const int addNewBalloonCommand = 2;
+    public const int updateBalloonCommand = 3;
+    public const int removeBalloonCommand = 4;
 }
 
 #endregion

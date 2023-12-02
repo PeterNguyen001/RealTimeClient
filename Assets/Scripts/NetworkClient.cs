@@ -3,6 +3,9 @@ using UnityEngine.Assertions;
 using Unity.Collections;
 using Unity.Networking.Transport;
 using System.Text;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class NetworkClient : MonoBehaviour
 {
@@ -28,15 +31,27 @@ public class NetworkClient : MonoBehaviour
         }
     }
 
-    public void OnDestroy()
+    private void OnDestroy()
     {
+        
+#if UNITY_EDITOR
+        if (EditorApplication.isPlaying && NetworkClientProcessing.IsConnectedToServer())
+        {
+            //NetworkClientProcessing.DisconnectionEvent();           
+        }
+#endif
         networkConnection.Disconnect(networkDriver);
         networkConnection = default(NetworkConnection);
         networkDriver.Dispose();
     }
 
+
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
         networkDriver.ScheduleUpdate().Complete();
 
         #region Check for client to server connection
@@ -85,6 +100,7 @@ public class NetworkClient : MonoBehaviour
         }
 
         #endregion
+
     }
 
     private bool PopNetworkEventAndCheckForData(out NetworkEvent.Type networkEventType, out DataStreamReader streamReader, out NetworkPipeline pipelineUsedToSendEvent)
@@ -131,8 +147,15 @@ public class NetworkClient : MonoBehaviour
 
     public void Disconnect()
     {
+        
         networkConnection.Disconnect(networkDriver);
         networkConnection = default(NetworkConnection);
+    }
+
+    private void OnApplicationQuit()
+    {
+        if (NetworkClientProcessing.IsConnectedToServer())
+        { NetworkClientProcessing.DisconnectionEvent(); }
     }
 
 }

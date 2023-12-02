@@ -14,6 +14,7 @@ public class CircleClick : MonoBehaviour
     }
     void OnMouseDown()
     {
-        Destroy(gameObject);
+        int id = gameObject.GetComponent<Ballon>().id;
+        NetworkClientProcessing.GetGameLogic().RemoveBallon(id);
     }
 }
