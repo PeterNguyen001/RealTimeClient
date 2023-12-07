@@ -16,6 +16,9 @@ public class NetworkClient : MonoBehaviour
     const ushort NetworkPort = 9001;
     const string IPAddress = "10.0.0.225";
 
+    private float lastHeartbeatTime;
+    private const float heartbeatInterval = 1.0f; // seconds
+
     void Start()
     {
         if (NetworkClientProcessing.GetNetworkedClient() == null)
@@ -48,6 +51,11 @@ public class NetworkClient : MonoBehaviour
 
     void Update()
     {
+        if (Time.time - lastHeartbeatTime > heartbeatInterval)
+        {
+            SendHeartbeat();
+            lastHeartbeatTime = Time.time;
+        }
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             Application.Quit();
@@ -156,6 +164,11 @@ public class NetworkClient : MonoBehaviour
     {
         if (NetworkClientProcessing.IsConnectedToServer())
         { NetworkClientProcessing.DisconnectionEvent(); }
+    }
+
+    private void SendHeartbeat()
+    {
+        NetworkClientProcessing.SendMessageToServer(ClientToServerSignifiers.updateHeartbeat.ToString(), TransportPipeline.FireAndForget);
     }
 
 }

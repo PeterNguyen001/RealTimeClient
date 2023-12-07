@@ -101,6 +101,7 @@ static public class ClientToServerSignifiers
 {
     public const int deleteBalloonCommand = 4;
     public const int playerQuit = 0;
+    public const int updateHeartbeat = 5;
 }
 
 static public class ServerToClientSignifiers
