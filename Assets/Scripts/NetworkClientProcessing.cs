@@ -21,14 +21,7 @@ static public class NetworkClientProcessing
         string[] csv = msg.Split(',');
         int signifier = int.Parse(csv[commandSign]);
 
-        // if (signifier == ServerToClientSignifiers.asd)
-        // {
-
-        // }
-        // else if (signifier == ServerToClientSignifiers.asd)
-        // {
-
-        // }
+    
 
         //gameLogic.DoSomething();
         if(signifier == ServerToClientSignifiers.addNewBalloonCommand)
@@ -38,6 +31,18 @@ static public class NetworkClientProcessing
         else if (signifier == ServerToClientSignifiers.removeBalloonCommand)
         {
             gameLogic.RemoveBallon(int.Parse(csv[idSign]));
+        }
+        else if(signifier == ServerToClientSignifiers.AddBalloonBatchCommand)
+        {
+            string[] balloonDataEntries = msg.Split(';');
+            foreach (string entry in balloonDataEntries)
+            {
+                string[] data = entry.Split(',');
+                int balloonId = int.Parse(data[0]);
+                float positionX = float.Parse(data[1]);
+                float positionY = float.Parse(data[2]);
+                gameLogic.SpawnNewBalloon(balloonId, positionX, positionY);
+            }
         }
     }
 
@@ -109,6 +114,7 @@ static public class ServerToClientSignifiers
     public const int addNewBalloonCommand = 2;
     public const int updateBalloonCommand = 3;
     public const int removeBalloonCommand = 4;
+    public const int AddBalloonBatchCommand = 6;
 }
 
 #endregion
