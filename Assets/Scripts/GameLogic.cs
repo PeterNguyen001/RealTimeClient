@@ -43,7 +43,7 @@ public class GameLogic : MonoBehaviour
         if(ballons.ContainsKey(id)) 
         {
             string msg = ClientToServerSignifiers.deleteBalloonCommand + "," + id;
-            NetworkClientProcessing.SendMessageToServer(msg, TransportPipeline.FireAndForget);
+            NetworkClientProcessing.SendMessageToServer(msg, TransportPipeline.ReliableAndInOrder);
             if (ballons[id] != null) 
             {
                 GameObject balloonGameObject = ballons[id].gameObject;
@@ -55,7 +55,7 @@ public class GameLogic : MonoBehaviour
     }
     public void QuitGame()
     {
-        NetworkClientProcessing.SendMessageToServer(ClientToServerSignifiers.playerQuit.ToString(), TransportPipeline.FireAndForget);
+        NetworkClientProcessing.SendMessageToServer(ClientToServerSignifiers.playerQuit.ToString(), TransportPipeline.ReliableAndInOrder);
 #if UNITY_EDITOR
         if (EditorApplication.isPlaying)
         {
